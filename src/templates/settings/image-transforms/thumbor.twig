@@ -2,21 +2,32 @@
 
 {% import "_includes/forms" as forms %}
 
-<!-- thumborBaseUrl -->
+<!-- baseUrl -->
 {{ forms.textField({
-    label: 'Thumbor Base URL',
+    label: 'Base URL',
     instructions: "The base URL to use for the Thumbor transforms."|t('image-optimize'),
     id: 'baseUrl',
     name: 'baseUrl',
     value: imageTransform.baseUrl,
     warning: configWarning('imageTransformTypeSettings', 'image-optimize'),
 }) }}
-<!-- thumborSecurityKey -->
+<!-- securityKey -->
 {{ forms.textField({
-    label: 'Thumbor Security Key',
+    label: 'Security Key',
     instructions: "The optional [security key](https://thumbor.readthedocs.io/en/latest/security.html) used by Thumbor to create secure image urls."|t('image-optimize'),
     id: 'securityKey',
     name: 'securityKey',
     value: imageTransform.securityKey,
     warning: configWarning('imageTransformTypeSettings', 'image-optimize'),
 }) }}
+<!-- includeBucketPrefix -->
+{% if awsS3Installed %}
+  {{ forms.lightswitchField({
+      label: 'Include Bucket Prefix',
+      instructions: 'Optionally prefix your asset path with the bucket name. This is useful if your Thumbor configuration does not specify an explicit bucket. Only relevant for AWS S3 volumes at this time.'|t('image-optimize'),
+      id: 'includeBucketPrefix',
+      name: 'includeBucketPrefix',
+      on: imageTransform.includeBucketPrefix,
+      warning: configWarning('includeBucketPrefix', 'image-optimize'),
+  }) }}
+{% endif %}

@@ -262,6 +262,7 @@ class ThumborImageTransform extends ImageTransform
     {
         return Craft::$app->getView()->renderTemplate('thumbor-image-transform/settings/image-transforms/thumbor.twig', [
             'imageTransform' => $this,
+            'awsS3Installed'    => \class_exists(\craft\awss3\Volume::class),
         ]);
     }
 
