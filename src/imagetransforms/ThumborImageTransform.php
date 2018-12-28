@@ -50,6 +50,11 @@ class ThumborImageTransform extends ImageTransform
      */
     public $securityKey;
 
+    /**
+     * @var bool
+     */
+    public $includeBucketPrefix = false;
+
     // Public Methods
     // =========================================================================
 
@@ -104,6 +109,7 @@ class ThumborImageTransform extends ImageTransform
         $params = [
             'baseUrl' => $this->baseUrl,
             'securityKey' => $this->securityKey,
+            'includeBucketPrefix' => $this->includeBucketPrefix,
         ];
 
         return $params;
@@ -232,6 +238,24 @@ class ThumborImageTransform extends ImageTransform
     private function getQuality($transform)
     {
         return $transform->quality ?? Craft::$app->getConfig()->getGeneral()->defaultImageQuality;
+    }
+
+    /**
+     * @param Asset $asset
+     *
+     * @return mixed
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function getAssetUri(Asset $asset)
+    {
+        $uri = parent::getAssetUri($asset);
+        $volume = $asset->getVolume();
+
+        if ($this->includeBucketPrefix && ($volume->bucket ?? null)) {
+            $uri = $volume->bucket . '/' . $uri;
+        }
+
+        return $uri;
     }
 
     public function getSettingsHtml()
