@@ -130,9 +130,7 @@ class ThumborImageTransform extends ImageTransform
     private function getUrlBuilderForTransform(Asset $asset, $transform, array $params = []): UrlBuilder
     {
         $assetUri = $this->getAssetUri($asset);
-        $baseUrl = $params['baseUrl'];
-        $securityKey = $params['securityKey'] ?: null;
-        $builder = UrlBuilder::construct($baseUrl, $securityKey, $assetUri);
+        $builder = UrlBuilder::construct($this->baseUrl, $this->securityKey, $assetUri);
         $settings = ImageOptimize::$plugin->getSettings();
 
         if ($transform->mode === 'fit') {
