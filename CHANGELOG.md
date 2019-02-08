@@ -1,5 +1,9 @@
 # ImageOptimize Thumbor Image Transform Changelog
 
+## 1.1.2 - 2019.02.07
+### Changed
+* Fixed an issue where `.env` vars were not actually parsed
+
 ## 1.1.1 - 2019.02.07
 ### Changed
 * If you're using Craft 3.1, ImageOptimize will use Craft [environmental variables](https://docs.craftcms.com/v3/config/environments.html#control-panel-settings) for secrets
