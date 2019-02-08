@@ -106,11 +106,19 @@ class ThumborImageTransform extends ImageTransform
      */
     public function getTransformParams(): array
     {
-        $params = [
-            'baseUrl' => $this->baseUrl,
-            'securityKey' => $this->securityKey,
-            'includeBucketPrefix' => $this->includeBucketPrefix,
-        ];
+        if (ImageOptimize::$craft31) {
+            $params = [
+                'baseUrl' => Craft::parseEnv($this->baseUrl),
+                'securityKey' => Craft::parseEnv($this->securityKey),
+                'includeBucketPrefix' => $this->includeBucketPrefix,
+            ];
+        } else {
+            $params = [
+                'baseUrl' => $this->baseUrl,
+                'securityKey' => $this->securityKey,
+                'includeBucketPrefix' => $this->includeBucketPrefix,
+            ];
+        }
 
         return $params;
     }
