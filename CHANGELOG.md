@@ -1,5 +1,12 @@
 # ImageOptimize Thumbor Image Transform Changelog
 
+## 1.2.0 - 2019.02.07
+### Added
+* Added support for `stretch` filter
+
+### Changed
+* Fixed SVGs by deferring to Craft
+
 ## 1.1.2 - 2019.02.07
 ### Changed
 * Fixed an issue where `.env` vars were not actually parsed
