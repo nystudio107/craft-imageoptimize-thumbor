@@ -149,12 +149,10 @@ class ThumborImageTransform extends ImageTransform
             // https://thumbor.readthedocs.io/en/latest/usage.html#fit-in
             $builder->fitIn($transform->width, $transform->height);
         } elseif ($transform->mode === 'stretch') {
+            // https://github.com/thumbor/thumbor/pull/1125
             $builder
                 ->resize($transform->width, $transform->height)
-                ->addFilter('upscale');
-
-            // https://github.com/thumbor/thumbor/issues/1123
-            Craft::warning('Thumbor has no equivalent to the "stretch" transform mode. The resulting image will be resized and cropped, but not stretched.', __METHOD__);
+                ->addFilter('stretch');
         } else {
 
             // https://thumbor.readthedocs.io/en/latest/usage.html#image-size
