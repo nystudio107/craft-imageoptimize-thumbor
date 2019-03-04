@@ -69,6 +69,10 @@ class ThumborImageTransform extends ImageTransform
      */
     public function getTransformUrl(Asset $asset, $transform, array $params = [])
     {
+        if ($asset->getExtension() === 'svg') {
+            return null;
+        }
+
         return (string)$this->getUrlBuilderForTransform($asset, $transform, $params);
     }
 
