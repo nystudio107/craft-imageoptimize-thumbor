@@ -73,6 +73,13 @@ class ThumborImageTransform extends ImageTransform
             return null;
         }
 
+        // This is already done for $params, but since we're using props, we
+        // need it here as well. Shouldn't need this after IO is refactored a bit…
+        if (ImageOptimize::$craft31) {
+            $this->baseUrl = Craft::parseEnv($this->baseUrl);
+            $this->securityKey = Craft::parseEnv($this->securityKey);
+        }
+
         return (string)$this->getUrlBuilderForTransform($asset, $transform, $params);
     }
 
@@ -260,7 +267,8 @@ class ThumborImageTransform extends ImageTransform
         $volume = $asset->getVolume();
 
         if ($this->includeBucketPrefix && ($volume->bucket ?? null)) {
-            $uri = $volume->bucket . '/' . $uri;
+            $bucket = ImageOptimize::$craft31 ? Craft::parseEnv($volume->bucket) : $volume->bucket;
+            $uri = $bucket . '/' . $uri;
         }
 
         return $uri;
