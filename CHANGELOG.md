@@ -1,6 +1,10 @@
 # ImageOptimize Thumbor Image Transform Changelog
 
-## 1.2.0 - 2019.02.07
+## 1.2.1 - 2019.03.11
+### Changed
+* Fixed un-parsed [environmental variables](https://docs.craftcms.com/v3/config/environments.html#control-panel-settings) for secrets
+
+## 1.2.0 - 2019.03.04
 ### Added
 * Added support for `stretch` filter
 
