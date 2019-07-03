@@ -1,5 +1,9 @@
 # ImageOptimize Thumbor Image Transform Changelog
 
+## 1.3.0 - 2019.07.05
+### Changed
+* Updated to work with the ImageOptimize 1.6.0 `ImageTransformInterface`
+
 ## 1.2.1 - 2019.03.11
 ### Changed
 * Fixed un-parsed [environmental variables](https://docs.craftcms.com/v3/config/environments.html#control-panel-settings) for secrets
