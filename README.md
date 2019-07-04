@@ -3,7 +3,7 @@
 ## Requirements
 
 * Craft CMS 3.0.0 or later
-* [ImageOptimize](https://github.com/nystudio107/craft-imageoptimize) plugin 1.5.1 or later
+* [ImageOptimize](https://github.com/nystudio107/craft-imageoptimize) plugin 1.6.0 or later
 
 ## Installation
 
