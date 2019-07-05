@@ -22,7 +22,7 @@ use Craft;
 /**
  * @author    nystudio107
  * @package   ImageOptimize
- * @since     1.0.0
+ * @since     1.3.0
  */
 class ThumborImageTransform extends ImageTransform
 {
@@ -61,41 +61,37 @@ class ThumborImageTransform extends ImageTransform
     /**
      * @param Asset               $asset
      * @param AssetTransform|null $transform
-     * @param array               $params
      *
      * @return string|null
      * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException
      */
-    public function getTransformUrl(Asset $asset, $transform, array $params = [])
+    public function getTransformUrl(Asset $asset, $transform)
     {
         if ($asset->getExtension() === 'svg') {
             return null;
         }
 
-        // This is already done for $params, but since we're using props, we
-        // need it here as well. Shouldn't need this after IO is refactored a bit…
         if (ImageOptimize::$craft31) {
             $this->baseUrl = Craft::parseEnv($this->baseUrl);
             $this->securityKey = Craft::parseEnv($this->securityKey);
         }
 
-        return (string)$this->getUrlBuilderForTransform($asset, $transform, $params);
+        return (string)$this->getUrlBuilderForTransform($asset, $transform);
     }
 
     /**
      * @param string              $url
      * @param Asset               $asset
      * @param AssetTransform|null $transform
-     * @param array               $params
      *
      * @return string
      * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException
      */
-    public function getWebPUrl(string $url, Asset $asset, $transform, array $params = []): string
+    public function getWebPUrl(string $url, Asset $asset, $transform): string
     {
-        $builder = $this->getUrlBuilderForTransform($asset, $transform, $params)
+        $builder = $this->getUrlBuilderForTransform($asset, $transform)
             ->addFilter('format', 'webp');
 
         return (string)$builder;
@@ -103,35 +99,12 @@ class ThumborImageTransform extends ImageTransform
 
     /**
      * @param string $url
-     * @param array  $params
      *
      * @return bool
      */
-    public function purgeUrl(string $url, array $params = []): bool
+    public function purgeUrl(string $url): bool
     {
         return false;
-    }
-
-    /**
-     * @return array
-     */
-    public function getTransformParams(): array
-    {
-        if (ImageOptimize::$craft31) {
-            $params = [
-                'baseUrl' => Craft::parseEnv($this->baseUrl),
-                'securityKey' => Craft::parseEnv($this->securityKey),
-                'includeBucketPrefix' => $this->includeBucketPrefix,
-            ];
-        } else {
-            $params = [
-                'baseUrl' => $this->baseUrl,
-                'securityKey' => $this->securityKey,
-                'includeBucketPrefix' => $this->includeBucketPrefix,
-            ];
-        }
-
-        return $params;
     }
 
     // Private Methods
@@ -140,13 +113,12 @@ class ThumborImageTransform extends ImageTransform
     /**
      * @param Asset               $asset
      * @param AssetTransform|null $transform
-     * @param array               $params
      *
      * @return UrlBuilder
      * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException
      */
-    private function getUrlBuilderForTransform(Asset $asset, $transform, array $params = []): UrlBuilder
+    private function getUrlBuilderForTransform(Asset $asset, $transform): UrlBuilder
     {
         $assetUri = $this->getAssetUri($asset);
         $builder = UrlBuilder::construct($this->baseUrl, $this->securityKey, $assetUri);
