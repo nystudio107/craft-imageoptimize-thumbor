@@ -165,9 +165,9 @@ class ThumborImageTransform extends ImageTransform
 
         if ($settings->autoSharpenScaledImages) {
             // See if the image has been scaled >= 50%
-            $widthScale = $asset->getWidth() / ($transform->width ?? $asset->getWidth());
-            $heightScale = $asset->getHeight() / ($transform->height ?? $asset->getHeight());
-            if (($widthScale >= 2.0) || ($heightScale >= 2.0)) {
+            $widthScale = (int)((($transform->width ?? $asset->getWidth()) / $asset->getWidth()) * 100);
+            $heightScale =  (int)((($transform->height ?? $asset->getHeight()) / $asset->getHeight()) * 100);
+            if (($widthScale >= (int)$settings->sharpenScaledImagePercentage) || ($heightScale >= (int)$settings->sharpenScaledImagePercentage)) {
                 // https://thumbor.readthedocs.io/en/latest/sharpen.html
                 $builder->addFilter('sharpen', .5, .5, 'true');
             }
