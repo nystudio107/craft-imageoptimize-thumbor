@@ -24,7 +24,7 @@
     "prefer-stable": true,
     "require": {
         "craftcms/cms": "^3.0.0",
-        "nystudio107/craft-imageoptimize": "^1.6.0",
+        "nystudio107/craft-imageoptimize": "^1.6.33",
         "webfactory/phumbor": "^1.2"
     },
     "autoload": {
