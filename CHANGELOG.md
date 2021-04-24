@@ -1,6 +1,6 @@
 # ImageOptimize Thumbor Image Transform Changelog
 
-## 1.3.1 - UNRELEASED
+## 1.3.1 - 2021.04.23
 ### Added
 * Added a setting to control the amount an image needs to be scaled down for automatic sharpening to be applied (https://github.com/nystudio107/craft-imageoptimize/issues/263)
 
