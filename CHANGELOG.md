@@ -1,5 +1,11 @@
 # ImageOptimize Thumbor Image Transform Changelog
 
+## 4.0.0-beta.1 - 2022.03.20
+
+### Added
+
+* Initial Craft CMS 4 compatibility
+
 ## 1.3.2 - 2022.02.24
 
 ### Changed
