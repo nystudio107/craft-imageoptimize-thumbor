@@ -10,14 +10,16 @@
 
 namespace nystudio107\imageoptimizethumbor\imagetransforms;
 
+use Craft;
+use craft\awss3\Fs as AwsFs;
+use craft\elements\Asset;
+use craft\helpers\App;
+use craft\models\ImageTransform as CraftImageTransformModel;
 use nystudio107\imageoptimize\ImageOptimize;
 use nystudio107\imageoptimize\imagetransforms\ImageTransform;
-
-use craft\elements\Asset;
-use craft\models\AssetTransform;
 use Thumbor\Url\Builder as UrlBuilder;
-
-use Craft;
+use yii\base\InvalidConfigException;
+use function class_exists;
 
 /**
  * @author    nystudio107
@@ -30,6 +32,22 @@ class ThumborImageTransform extends ImageTransform
     // =========================================================================
 
     /**
+     * @var string
+     */
+    public string $baseUrl;
+
+    // Public Properties
+    // =========================================================================
+    /**
+     * @var string
+     */
+    public string $securityKey;
+    /**
+     * @var bool
+     */
+    public bool $includeBucketPrefix = false;
+
+    /**
      * @inheritdoc
      */
     public static function displayName(): string
@@ -37,59 +55,28 @@ class ThumborImageTransform extends ImageTransform
         return Craft::t('image-optimize', 'Thumbor');
     }
 
-    // Public Properties
-    // =========================================================================
-
-    /**
-     * @var string
-     */
-    public $baseUrl;
-
-    /**
-     * @var string
-     */
-    public $securityKey;
-
-    /**
-     * @var bool
-     */
-    public $includeBucketPrefix = false;
-
     // Public Methods
     // =========================================================================
 
     /**
-     * @param Asset               $asset
-     * @param AssetTransform|null $transform
-     *
-     * @return string|null
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @inheritdoc
      */
-    public function getTransformUrl(Asset $asset, $transform)
+    public function getTransformUrl(Asset $asset, CraftImageTransformModel|string|array|null $transform): ?string
     {
         if ($asset->getExtension() === 'svg') {
             return null;
         }
 
-        if (ImageOptimize::$craft31) {
-            $this->baseUrl = Craft::parseEnv($this->baseUrl);
-            $this->securityKey = Craft::parseEnv($this->securityKey);
-        }
+        $this->baseUrl = App::parseEnv($this->baseUrl);
+        $this->securityKey = App::parseEnv($this->securityKey);
 
         return (string)$this->getUrlBuilderForTransform($asset, $transform);
     }
 
     /**
-     * @param string              $url
-     * @param Asset               $asset
-     * @param AssetTransform|null $transform
-     *
-     * @return string
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @inheritdoc
      */
-    public function getWebPUrl(string $url, Asset $asset, $transform): string
+    public function getWebPUrl(string $url, Asset $asset, CraftImageTransformModel|string|array|null $transform): ?string
     {
         $builder = $this->getUrlBuilderForTransform($asset, $transform)
             ->addFilter('format', 'webp');
@@ -98,27 +85,68 @@ class ThumborImageTransform extends ImageTransform
     }
 
     /**
-     * @param string $url
-     *
-     * @return bool
+     * @inheritdoc
      */
     public function purgeUrl(string $url): bool
     {
         return false;
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function getAssetUri(Asset $asset): ?string
+    {
+        $uri = parent::getAssetUri($asset);
+        try {
+            $volumeFs = $asset->getVolume()->getFs();
+        } catch (InvalidConfigException $e) {
+            Craft::error($e->getMessage(), __METHOD__);
+            $volumeFs = null;
+        }
+
+        if ($this->includeBucketPrefix && ($volumeFs instanceof AwsFs)) {
+            $bucket = App::parseEnv($volumeFs->bucket);
+            $uri = $bucket . '/' . $uri;
+        }
+
+        return $uri;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSettingsHtml(): ?string
+    {
+        return Craft::$app->getView()->renderTemplate('thumbor-image-transform/settings/image-transforms/thumbor.twig', [
+            'imageTransform' => $this,
+            'awsS3Installed' => class_exists(AwsFs::class),
+        ]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules(): array
+    {
+        $rules = parent::rules();
+
+        return array_merge($rules, [
+            [['baseUrl', 'securityKey'], 'default', 'value' => ''],
+            [['baseUrl', 'securityKey'], 'string'],
+        ]);
+    }
+
     // Private Methods
     // =========================================================================
 
     /**
-     * @param Asset               $asset
-     * @param AssetTransform|null $transform
+     * @param Asset $asset
+     * @param CraftImageTransformModel|string|array|null $transform
      *
      * @return UrlBuilder
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
      */
-    private function getUrlBuilderForTransform(Asset $asset, $transform): UrlBuilder
+    private function getUrlBuilderForTransform(Asset $asset, CraftImageTransformModel|string|array|null $transform): UrlBuilder
     {
         $assetUri = $this->getAssetUri($asset);
         $builder = UrlBuilder::construct($this->baseUrl, $this->securityKey, $assetUri);
@@ -166,8 +194,8 @@ class ThumborImageTransform extends ImageTransform
         if ($settings->autoSharpenScaledImages) {
             // See if the image has been scaled >= 50%
             $widthScale = (int)((($transform->width ?? $asset->getWidth()) / $asset->getWidth()) * 100);
-            $heightScale =  (int)((($transform->height ?? $asset->getHeight()) / $asset->getHeight()) * 100);
-            if (($widthScale >= (int)$settings->sharpenScaledImagePercentage) || ($heightScale >= (int)$settings->sharpenScaledImagePercentage)) {
+            $heightScale = (int)((($transform->height ?? $asset->getHeight()) / $asset->getHeight()) * 100);
+            if (($widthScale >= $settings->sharpenScaledImagePercentage) || ($heightScale >= $settings->sharpenScaledImagePercentage)) {
                 // https://thumbor.readthedocs.io/en/latest/sharpen.html
                 $builder->addFilter('sharpen', .5, .5, 'true');
             }
@@ -177,9 +205,10 @@ class ThumborImageTransform extends ImageTransform
     }
 
     /**
+     * @param Asset $asset
      * @return string|null
      */
-    private function getFocalPoint(Asset $asset)
+    private function getFocalPoint(Asset $asset): ?string
     {
         $focalPoint = $asset->getFocalPoint();
 
@@ -206,11 +235,11 @@ class ThumborImageTransform extends ImageTransform
     }
 
     /**
-     * @param AssetTransform|null $transform
+     * @param CraftImageTransformModel|string|array|null $transform
      *
-     * @return string|null
+     * @return ?string
      */
-    private function getFormat($transform)
+    private function getFormat(CraftImageTransformModel|string|array|null $transform): ?string
     {
         $format = str_replace('jpg', 'jpeg', $transform->format);
 
@@ -218,53 +247,12 @@ class ThumborImageTransform extends ImageTransform
     }
 
     /**
-     * @param AssetTransform|null $transform
+     * @param CraftImageTransformModel|string|array|null $transform
      *
      * @return int
      */
-    private function getQuality($transform)
+    private function getQuality(CraftImageTransformModel|string|array|null $transform): int
     {
         return $transform->quality ?? Craft::$app->getConfig()->getGeneral()->defaultImageQuality;
-    }
-
-    /**
-     * @param Asset $asset
-     *
-     * @return mixed
-     * @throws \yii\base\InvalidConfigException
-     */
-    public function getAssetUri(Asset $asset)
-    {
-        $uri = parent::getAssetUri($asset);
-        $volume = $asset->getVolume();
-
-        if ($this->includeBucketPrefix && ($volume->bucket ?? null)) {
-            $bucket = ImageOptimize::$craft31 ? Craft::parseEnv($volume->bucket) : $volume->bucket;
-            $uri = $bucket . '/' . $uri;
-        }
-
-        return $uri;
-    }
-
-    public function getSettingsHtml()
-    {
-        return Craft::$app->getView()->renderTemplate('thumbor-image-transform/settings/image-transforms/thumbor.twig', [
-            'imageTransform' => $this,
-            'awsS3Installed'    => \class_exists(\craft\awss3\Volume::class),
-        ]);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        $rules = parent::rules();
-        $rules = array_merge($rules, [
-            [['baseUrl', 'securityKey'], 'default', 'value' => ''],
-            [['baseUrl', 'securityKey'], 'string'],
-        ]);
-
-        return $rules;
     }
 }
