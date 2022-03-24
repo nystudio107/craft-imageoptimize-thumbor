@@ -28,20 +28,19 @@ use function class_exists;
  */
 class ThumborImageTransform extends ImageTransform
 {
-    // Static Methods
-    // =========================================================================
-
-    /**
-     * @var string
-     */
-    public string $baseUrl;
-
     // Public Properties
     // =========================================================================
+
     /**
      * @var string
      */
-    public string $securityKey;
+    public string $baseUrl = '';
+
+    /**
+     * @var string
+     */
+    public string $securityKey = '';
+
     /**
      * @var bool
      */
