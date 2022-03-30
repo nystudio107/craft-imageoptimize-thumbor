@@ -2,7 +2,7 @@
   "name": "nystudio107/craft-imageoptimize-thumbor",
   "description": "Provides an Thumbor image transform type for the ImageOptimize plugin.",
   "type": "image-transform",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "keywords": [
     "craftcms",
     "thumbor",
@@ -23,7 +23,7 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "nystudio107/craft-imageoptimize": "^1.6.33 || ^4.0.0-beta.1",
+    "nystudio107/craft-imageoptimize": "^1.6.33",
     "webfactory/phumbor": "^1.2"
   },
   "autoload": {
