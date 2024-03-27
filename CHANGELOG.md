@@ -1,5 +1,14 @@
 # ImageOptimize Thumbor Image Transform Changelog
 
+## 1.3.4 - UNRELEASED
+### Added
+* Add `phpstan` and `ecs` code linting
+* Add `code-analysis.yaml` GitHub action
+
+### Changed
+* PHPstan code cleanup
+* ECS code cleanup
+
 ## 1.3.3 - 2022.03.29
 
 ### Changed
