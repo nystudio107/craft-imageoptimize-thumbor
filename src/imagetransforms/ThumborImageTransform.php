@@ -17,6 +17,7 @@ use craft\helpers\App;
 use craft\models\ImageTransform as CraftImageTransformModel;
 use nystudio107\imageoptimize\ImageOptimize;
 use nystudio107\imageoptimize\imagetransforms\ImageTransform;
+use nystudio107\imageoptimize\models\Settings;
 use Thumbor\Url\Builder as UrlBuilder;
 use yii\base\InvalidConfigException;
 use function class_exists;
@@ -149,6 +150,7 @@ class ThumborImageTransform extends ImageTransform
     {
         $assetUri = $this->getAssetUri($asset);
         $builder = UrlBuilder::construct($this->baseUrl, $this->securityKey, $assetUri);
+        /** @var Settings $settings */
         $settings = ImageOptimize::$plugin->getSettings();
 
         if ($transform->mode === 'fit') {
